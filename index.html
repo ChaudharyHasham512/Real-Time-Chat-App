@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexChat – Real-Time Chat</title>
+  <meta name="description" content="A premium real-time chat interface with chatbot, localStorage persistence, and smooth animations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg-mesh" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- ── Sidebar ──────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="app-brand">
+          <span class="brand-icon">💬</span>
+          <span class="brand-name">NexChat</span>
+        </div>
+        <button class="icon-btn" id="clearHistoryBtn" title="Clear chat history">🗑️</button>
+      </div>
+
+      <!-- Search -->
+      <div class="sidebar-search">
+        <span class="search-icon-s">🔍</span>
+        <input type="text" id="contactSearch" placeholder="Search contacts..." autocomplete="off" />
+      </div>
+
+      <!-- Contact List -->
+      <ul class="contact-list" id="contactList" role="listbox" aria-label="Contacts">
+
+        <li class="contact-item active" data-contact="nova" role="option" aria-selected="true">
+          <div class="contact-avatar" style="background:linear-gradient(135deg,#6fa3ff,#a78bfa)">
+            <span>N</span>
+            <span class="online-dot"></span>
+          </div>
+          <div class="contact-details">
+            <span class="contact-name">Nova AI</span>
+            <span class="contact-preview" id="preview-nova">Hey! How can I help?</span>
+          </div>
+          <div class="contact-meta">
+            <span class="contact-time" id="time-nova"></span>
+            <span class="unread-badge" id="badge-nova" hidden>0</span>
+          </div>
+        </li>
+
+        <li class="contact-item" data-contact="alice" role="option" aria-selected="false">
+          <div class="contact-avatar" style="background:linear-gradient(135deg,#f472b6,#ec4899)">
+            <span>A</span>
+          </div>
+          <div class="contact-details">
+            <span class="contact-name">Alice Wang</span>
+            <span class="contact-preview" id="preview-alice">Sounds good! 👍</span>
+          </div>
+          <div class="contact-meta">
+            <span class="contact-time" id="time-alice"></span>
+            <span class="unread-badge" id="badge-alice" hidden>0</span>
+          </div>
+        </li>
+
+        <li class="contact-item" data-contact="bob" role="option" aria-selected="false">
+          <div class="contact-avatar" style="background:linear-gradient(135deg,#34d399,#059669)">
+            <span>B</span>
+          </div>
+          <div class="contact-details">
+            <span class="contact-name">Bob Martinez</span>
+            <span class="contact-preview" id="preview-bob">Let's catch up later!</span>
+          </div>
+          <div class="contact-meta">
+            <span class="contact-time" id="time-bob"></span>
+            <span class="unread-badge" id="badge-bob" hidden>0</span>
+          </div>
+        </li>
+
+        <li class="contact-item" data-contact="sara" role="option" aria-selected="false">
+          <div class="contact-avatar" style="background:linear-gradient(135deg,#fb923c,#f97316)">
+            <span>S</span>
+          </div>
+          <div class="contact-details">
+            <span class="contact-name">Sara Patel</span>
+            <span class="contact-preview" id="preview-sara">On my way! 🚀</span>
+          </div>
+          <div class="contact-meta">
+            <span class="contact-time" id="time-sara"></span>
+            <span class="unread-badge" id="badge-sara" hidden>0</span>
+          </div>
+        </li>
+
+      </ul>
+    </aside>
+
+    <!-- ── Chat Panel ─────────────────────────────────────────── -->
+    <main class="chat-panel" id="chatPanel">
+
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <button class="icon-btn mobile-back" id="mobileBack" title="Back">←</button>
+        <div class="chat-peer-info" id="chatPeerInfo">
+          <div class="chat-avatar" id="chatAvatar" style="background:linear-gradient(135deg,#6fa3ff,#a78bfa)">
+            <span id="chatAvatarLetter">N</span>
+            <span class="online-dot" id="peerOnlineDot"></span>
+          </div>
+          <div>
+            <p class="chat-peer-name" id="chatPeerName">Nova AI</p>
+            <p class="chat-peer-status" id="chatPeerStatus">🟢 Online — AI Assistant</p>
+          </div>
+        </div>
+        <div class="chat-header-actions">
+          <button class="icon-btn" id="emojiToggleBtn" title="Emoji picker">😊</button>
+          <button class="icon-btn" id="clearChatBtn" title="Clear this chat">🗑️</button>
+        </div>
+      </div>
+
+      <!-- Date divider template (cloned by JS) -->
+      <template id="dateDividerTpl">
+        <div class="date-divider"><span></span></div>
+      </template>
+
+      <!-- Messages Area -->
+      <div class="messages-area" id="messagesArea" role="log" aria-live="polite" aria-label="Chat messages"></div>
+
+      <!-- Typing Indicator -->
+      <div class="typing-indicator" id="typingIndicator" hidden>
+        <div class="typing-avatar" id="typingAvatar" style="background:linear-gradient(135deg,#6fa3ff,#a78bfa)">
+          <span id="typingAvatarLetter">N</span>
+        </div>
+        <div class="typing-bubble">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <span class="typing-label" id="typingLabel">Nova is typing…</span>
+      </div>
+
+      <!-- Emoji Picker -->
+      <div class="emoji-picker" id="emojiPicker" hidden>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <textarea
+          id="msgInput"
+          rows="1"
+          placeholder="Type a message…"
+          autocomplete="off"
+          spellcheck="true"
+          aria-label="Message input"
+          maxlength="1000"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" title="Send message" aria-label="Send">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+
+    </main>
+
+  </div><!-- /app-shell -->
+
+  <script src="script.js"></script>
+</body>
+</html>
